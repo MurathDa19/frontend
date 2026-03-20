@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'http://10.3.146.113:8082/api';
+const BASE_URL = 'http://192.168.1.7:8000/api';
 
 export const LoginService = async (email, password) => {
   try {
-    const response = await fetch(`${BASE_URL}/auth/login`, {
+    const response = await fetch(`${BASE_URL}/auth/login/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -13,7 +13,7 @@ export const LoginService = async (email, password) => {
     });
     const data = await response.json();
     if (response.ok) {
-      await AsyncStorage.setItem('token', data.token);
+      // await AsyncStorage.setItem('token', data.token);
       // Retorna los datos.
       return data;
     } else {
@@ -48,7 +48,7 @@ export const RegisterService = async (email, password) => {
 
 export const GetTasksService = async () => {
   try {
-    const token = await AsyncStorage.getItem('token');
+    const token = await AsyncStorage.getItem('userToken');
     const response = await fetch(`${BASE_URL}/tareas/`, {
       method: 'GET',
       headers: {

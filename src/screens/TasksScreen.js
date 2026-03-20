@@ -10,7 +10,8 @@ export const TasksScreen = () => {
     const fetchTasks = async () => {
       try {
         const data = await GetTasksService();
-        setTasks(data);
+        console.log('Datos recibidos:', JSON.stringify(data));
+        setTasks(data.tareas);
       } catch (error) {
         setError(error.message);
       }
@@ -22,7 +23,8 @@ export const TasksScreen = () => {
       <Text style={styles.title}>Tasks</Text>
       {tasks.length > 0 ? (
         tasks.map((task) => (
-          <Text key={task.id} style={styles.task}>{task.title}</Text>
+          <Text key={task.id} style={styles.task}>{task.titulo}</Text>
+          
         ))
       ) : (
         <Text style={styles.error}>No tasks available</Text>
