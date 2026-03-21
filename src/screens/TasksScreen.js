@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DeleteTaskService, GetTasksService } from '../api/apiService';
-import { AuthContext, refreshUserData } from '../context/authContext'
+import { AuthContext } from '../context/authContext'
 
 
 export const TasksScreen = ({ navigation }) => {

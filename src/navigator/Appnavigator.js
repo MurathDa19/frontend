@@ -7,6 +7,7 @@ import { TasksScreen } from '../screens/TasksScreen';
 import { ProfileHeader } from '../screens/DashboardScreen';
 import { ChangeProfilePictureScreen } from '../screens/ChangeProfilePictureScreen';
 import { EditTaskScreen } from '../screens/EditTaskScreen';
+import { AddTaskScreen } from '../screens/AddTaskScreen';
 
 
 
@@ -46,6 +47,11 @@ export default function AppNavigator() {
         <Stack.Screen
             name="EditTaskScreen"
             component={EditTaskScreen}
+            options={{ headerShown: false }}
+        />
+        <Stack.Screen
+            name="AddTaskScreen"
+            component={AddTaskScreen}
             options={{ headerShown: false }}
         />
       </Stack.Navigator>
