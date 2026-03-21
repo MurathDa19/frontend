@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { DeleteTaskService, GetTasksService } from '../api/apiService';
-import { AuthContext } from '../context/authContext'
-
+import { DeleteTaskService, GetTasksService, AddTaskService } from '../api/apiService';
+import { AuthContext } from '../context/authContext';
 
 export const TasksScreen = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const { refreshUserData } = useContext(AuthContext)
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newTask, setNewTask] = useState({ titulo: '', descripcion: '' });
+  const [creating, setCreating] = useState(false);
+  const { refreshUserData } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -45,9 +47,9 @@ export const TasksScreen = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await DeleteTaskService(taskId)
+              await DeleteTaskService(taskId);
               await refreshUserData();
-              setTasks(tasks.filter((t) => t.id !== taskId)); 
+              setTasks(tasks.filter((t) => t.id !== taskId));
             } catch (error) {
               Alert.alert('Error', 'No se pudo eliminar la tarea.');
             }
@@ -57,15 +59,31 @@ export const TasksScreen = ({ navigation }) => {
     );
   };
 
-  const handleEdit = async(task) => {
+  const handleEdit = async (task) => {
     navigation.navigate('EditTaskScreen', { task });
     await refreshUserData();
   };
 
+  const handleCreate = async () => {
+    if (!newTask.titulo.trim()) {
+      Alert.alert('Error', 'El título es obligatorio.');
+      return;
+    }
+    setCreating(true);
+    try {
+      const created = await AddTaskService(newTask);
+      setTasks([created, ...tasks]);
+      setNewTask({ titulo: '', descripcion: '' });
+      setModalVisible(false);
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo crear la tarea.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const TaskCard = ({ task }) => (
     <View style={styles.card}>
-
-      {/* Header: título y badge */}
       <View style={styles.cardHeader}>
         <Text style={styles.taskTitle}>{task.titulo}</Text>
         <View style={[
@@ -80,25 +98,17 @@ export const TasksScreen = ({ navigation }) => {
           </Text>
         </View>
       </View>
-
-      {/* Descripción */}
       <Text style={styles.taskDescription}>{task.descripcion}</Text>
-
-      {/* Footer: fecha y botones */}
       <View style={styles.cardFooter}>
         <Text style={styles.dateIcon}>📅</Text>
         <Text style={styles.taskDate}>{formatDate(task.fecha_creacion)}</Text>
-
-        {/* Botones */}
         <View style={styles.buttonsRow}>
           <TouchableOpacity
             style={[styles.iconButton, styles.editButton]}
             onPress={() => handleEdit(task)}
           >
-            
             <Text style={styles.editText}>Editar</Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             style={[styles.iconButton, styles.deleteButton]}
             onPress={() => handleDelete(task.id)}
@@ -108,7 +118,6 @@ export const TasksScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-
     </View>
   );
 
@@ -137,13 +146,61 @@ export const TasksScreen = ({ navigation }) => {
         />
       )}
 
-      {/* Botón agregar tarea */}
+      {/* Botón + */}
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('AddTaskScreen')}
+        onPress={() => setModalVisible(true)}
       >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
+
+      {/* Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+
+            <Text style={styles.modalTitle}>Nueva Tarea</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Título"
+              value={newTask.titulo}
+              onChangeText={(text) => setNewTask({ ...newTask, titulo: text })}
+            />
+
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Descripción"
+              value={newTask.descripcion}
+              onChangeText={(text) => setNewTask({ ...newTask, descripcion: text })}
+              multiline
+              numberOfLines={3}
+            />
+
+            <TouchableOpacity
+              style={styles.createButton}
+              onPress={handleCreate}
+              disabled={creating}
+            >
+              {creating ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.createButtonText}>Agregar Tarea</Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text style={styles.cancelText}>Cancelar</Text>
+            </TouchableOpacity>
+
+          </View>
+        </View>
+      </Modal>
 
     </View>
   );
@@ -285,5 +342,53 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 8,
     elevation: 6,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    width: '90%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 16,
+  },
+  input: {
+    backgroundColor: '#F5F6FA',
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 14,
+    color: '#1A1A2E',
+    marginBottom: 12,
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  createButton: {
+    backgroundColor: '#6C63FF',
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  createButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  cancelText: {
+    color: '#EF4444',
+    fontWeight: '500',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
