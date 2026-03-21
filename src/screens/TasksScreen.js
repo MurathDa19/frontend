@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { GetTasksService } from '../api/apiService';
+import { DeleteTaskService, GetTasksService } from '../api/apiService';
+import { AuthContext, refreshUserData } from '../context/authContext'
+
 
 export const TasksScreen = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const { refreshUserData } = useContext(AuthContext)
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -42,8 +45,9 @@ export const TasksScreen = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              // aquí irá tu DeleteTaskService(taskId)
-              setTasks(tasks.filter((t) => t.id !== taskId)); // la quita de la lista
+              await DeleteTaskService(taskId)
+              await refreshUserData();
+              setTasks(tasks.filter((t) => t.id !== taskId)); 
             } catch (error) {
               Alert.alert('Error', 'No se pudo eliminar la tarea.');
             }
@@ -53,8 +57,9 @@ export const TasksScreen = ({ navigation }) => {
     );
   };
 
-  const handleEdit = (task) => {
-    navigation.navigate('EditTaskScreen', { task }); // le pasa la tarea completa
+  const handleEdit = async(task) => {
+    navigation.navigate('EditTaskScreen', { task });
+    await refreshUserData();
   };
 
   const TaskCard = ({ task }) => (
@@ -90,7 +95,7 @@ export const TasksScreen = ({ navigation }) => {
             style={[styles.iconButton, styles.editButton]}
             onPress={() => handleEdit(task)}
           >
-            <Ionicons name="pencil-outline" size={16} color="#6C63FF" />
+            
             <Text style={styles.editText}>Editar</Text>
           </TouchableOpacity>
 

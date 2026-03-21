@@ -106,7 +106,7 @@ export const AddTaskService = async (taskData) => {
   }
 };
 
-export const EditTaskService = async(taskId) =>{
+export const EditTaskService = async(taskId, taskData) =>{
   try{
     const token = await AsyncStorage.getItem('userToken');
     const response = await fetch(`${BASE_URL}/tareas/${taskId}/`, {
