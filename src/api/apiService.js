@@ -83,3 +83,35 @@ export const GetUserService = async () => {
     throw new Error(data.message || 'Get user failed');
   }
 };
+
+export const ChangeProfilePictureService = async (imageUri) => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+
+    
+    const formData = new FormData();
+    formData.append('imagen', {
+      uri: imageUri,         
+      type: 'image/jpeg',     
+      name: 'profile.jpg',   
+    });
+
+    const response = await fetch(`${BASE_URL}/profile/image/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      return data;
+    } else {
+      throw new Error(data.message || 'Change profile picture failed');
+    }
+  } catch (error) {
+    throw error;
+  }
+};

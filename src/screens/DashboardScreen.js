@@ -2,6 +2,9 @@ import { AuthContext } from '../context/authContext';
 import { Image, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useContext } from 'react';
 import defaultProfileImage from '../../assets/default.jpg';
+import { ChangeProfilePictureService } from '../api/apiService';
+
+
 
 export const ProfileHeader = ({ navigation }) => {
     const { userData, logout } = useContext(AuthContext);
@@ -31,14 +34,18 @@ export const ProfileHeader = ({ navigation }) => {
             <View style={styles.buttonsRow}>
                 <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => navigation.navigate('TasksScreen')}
+                    onPress={() => {
+                        navigation.navigate('TasksScreen');
+                    }}
                 >
                     <Text style={styles.buttonText}>Mis Tareas 🔍</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => navigation.navigate('ChangeProfilePictureScreen')}
+                    onPress={() => {
+                        navigation.navigate('ChangeProfilePictureScreen');
+                    }}
                 >
                     
                     <Text style={styles.buttonText}>Cambiar Foto 📷</Text>
@@ -90,7 +97,7 @@ const styles = StyleSheet.create({
     roleText: {
         fontSize: 13,
         fontWeight: '600',
-        color: '#6C63FF',
+        color: 'green',
         textTransform: 'uppercase',
     },
     buttonsRow: {
