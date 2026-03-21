@@ -84,6 +84,28 @@ export const GetUserService = async () => {
   }
 };
 
+export const AddTaskService = async (taskData) => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    const response = await fetch(`${BASE_URL}/tareas/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(taskData),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      return data;
+    } else {
+      throw new Error(data.message || 'Add task failed');
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const ChangeProfilePictureService = async (imageUri) => {
   try {
     const token = await AsyncStorage.getItem('userToken');
@@ -100,7 +122,7 @@ export const ChangeProfilePictureService = async (imageUri) => {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        
+
       },
       body: formData,
     });

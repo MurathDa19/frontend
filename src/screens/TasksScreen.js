@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { GetTasksService } from '../api/apiService';
 
-export const TasksScreen = () => {
+export const TasksScreen = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -30,8 +31,36 @@ export const TasksScreen = () => {
     });
   };
 
+  const handleDelete = (taskId) => {
+    Alert.alert(
+      'Eliminar tarea',
+      '¿Estás seguro de que quieres eliminar esta tarea?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // aquí irá tu DeleteTaskService(taskId)
+              setTasks(tasks.filter((t) => t.id !== taskId)); // la quita de la lista
+            } catch (error) {
+              Alert.alert('Error', 'No se pudo eliminar la tarea.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleEdit = (task) => {
+    navigation.navigate('EditTaskScreen', { task }); // le pasa la tarea completa
+  };
+
   const TaskCard = ({ task }) => (
     <View style={styles.card}>
+
+      {/* Header: título y badge */}
       <View style={styles.cardHeader}>
         <Text style={styles.taskTitle}>{task.titulo}</Text>
         <View style={[
@@ -46,11 +75,35 @@ export const TasksScreen = () => {
           </Text>
         </View>
       </View>
+
+      {/* Descripción */}
       <Text style={styles.taskDescription}>{task.descripcion}</Text>
+
+      {/* Footer: fecha y botones */}
       <View style={styles.cardFooter}>
         <Text style={styles.dateIcon}>📅</Text>
         <Text style={styles.taskDate}>{formatDate(task.fecha_creacion)}</Text>
+
+        {/* Botones */}
+        <View style={styles.buttonsRow}>
+          <TouchableOpacity
+            style={[styles.iconButton, styles.editButton]}
+            onPress={() => handleEdit(task)}
+          >
+            <Ionicons name="pencil-outline" size={16} color="#6C63FF" />
+            <Text style={styles.editText}>Editar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.iconButton, styles.deleteButton]}
+            onPress={() => handleDelete(task.id)}
+          >
+            <Ionicons name="trash-outline" size={16} color="#EF4444" />
+            <Text style={styles.deleteText}>Eliminar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
     </View>
   );
 
@@ -78,6 +131,15 @@ export const TasksScreen = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      {/* Botón agregar tarea */}
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate('AddTaskScreen')}
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </TouchableOpacity>
+
     </View>
   );
 };
@@ -112,7 +174,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   listContainer: {
-    paddingBottom: 30,
+    paddingBottom: 100,
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -123,7 +185,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
-    elevation: 4,       // Android
+    elevation: 4,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -167,11 +229,56 @@ const styles = StyleSheet.create({
   taskDate: {
     fontSize: 12,
     color: '#9E9E9E',
+    flex: 1,
+  },
+  buttonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  iconButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+  },
+  editButton: {
+    backgroundColor: '#EEF2FF',
+  },
+  editText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6C63FF',
+  },
+  deleteButton: {
+    backgroundColor: '#FFF1F2',
+  },
+  deleteText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#EF4444',
   },
   errorText: {
     fontSize: 14,
     color: '#EF4444',
     textAlign: 'center',
     marginTop: 20,
+  },
+  addButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 24,
+    backgroundColor: '#6C63FF',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#6C63FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });
