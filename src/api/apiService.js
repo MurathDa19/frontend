@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'http://192.168.1.7:8000/api';
+const BASE_URL = 'http://10.45.229.92:8000/api';
 
 export const LoginService = async (email, password) => {
   try {
@@ -106,6 +106,25 @@ export const AddTaskService = async (taskData) => {
   }
 };
 
+export const DeleteTaskService = async (taskId) => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    const response = await fetch(`${BASE_URL}/tareas/${taskId}/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (response.ok) {
+      return data;
+    } else {
+      throw new Error(data.message || 'Delete task failed');
+    }
+  } catch (error) {
+    throw error;
+  }
+};
 export const ChangeProfilePictureService = async (imageUri) => {
   try {
     const token = await AsyncStorage.getItem('userToken');
