@@ -106,6 +106,28 @@ export const AddTaskService = async (taskData) => {
   }
 };
 
+export const EditTaskService = async(taskId) =>{
+  try{
+    const token = await AsyncStorage.getItem('userToken');
+    const response = await fetch(`${BASE_URL}/tareas/${taskId}/`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(taskData),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      return data;
+    } else {
+      throw new Error(data.message || 'Edit task failed');
+    }
+  }catch (error) {
+    throw error;
+  }
+}
+
 export const DeleteTaskService = async (taskId) => {
   try {
     const token = await AsyncStorage.getItem('userToken');
