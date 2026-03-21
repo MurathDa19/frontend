@@ -71,6 +71,7 @@ export const TasksScreen = ({ navigation }) => {
     }
     setCreating(true);
     try {
+      console.log('Enviando tarea:', JSON.stringify(newTask));
       const created = await AddTaskService(newTask);
       setTasks([created, ...tasks]);
       setNewTask({ titulo: '', descripcion: '' });
