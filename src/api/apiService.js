@@ -66,3 +66,20 @@ export const GetTasksService = async () => {
     throw error;
   }
 }
+
+export const GetUserService = async () => {
+  const token = await AsyncStorage.getItem('userToken');
+  const response = await fetch(`${BASE_URL}/profile/image/`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  console.log(data);
+  if (response.ok) {
+    return data;
+  } else {
+    throw new Error(data.message || 'Get user failed');
+  }
+};

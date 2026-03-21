@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { AuthContext } from '../context/authContext'; // ← aquí obtienes userToken
 import { LoginScreen } from '../screens/LoginScreen';
 import { TasksScreen } from '../screens/TasksScreen';
-import { DashboardScreen } from '../screens/DashboardScreen';
+import { ProfileHeader } from '../screens/DashboardScreen';
 
 const Stack = createStackNavigator();
 
@@ -19,7 +19,7 @@ export default function AppNavigator() {
         {userToken ? (
           <Stack.Screen
             name="Tasks"
-            component={DashboardScreen}
+            component={ProfileHeader}
             options={{ headerShown: false }}
           />
         ) : (
