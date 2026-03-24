@@ -43,8 +43,8 @@ export const LoginScreen = () =>{
                 onChangeText={setPassword}
                 secureTextEntry
             />
-            <Button title="Login" onPress={handleLogin} color="blue" />
-            {isLoading && <ActivityIndicator size="large" style={styles.loading} color="blue" />}
+            <Button title="Login" style={styles.loginButton} onPress={handleLogin} color="green" />
+            {isLoading && <ActivityIndicator size="large" style={styles.loading} color="green" />}
         </View>
     )
 }
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 20,
-        color: 'blue',
+        color: 'green',
     },
     input: {
         borderBottomWidth: 1,
@@ -74,6 +74,12 @@ const styles = StyleSheet.create({
     },
     loading: {
         marginTop: 20,
+    },
+    loginButton: {
+        width: '100%',
+        paddingVertical: 14,
+        borderRadius: 16,
+        backgroundColor: 'green',
     },
 })
 

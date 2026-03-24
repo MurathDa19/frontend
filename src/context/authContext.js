@@ -1,19 +1,25 @@
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GetUserService } from '../api/apiService';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [userToken, setUserToken] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    
+    const [userData, setUserData] = useState(null);
+
     const login = async (token) => {
         setUserToken(token);
         await AsyncStorage.setItem('userToken', token);
+
+        const user = await GetUserService();
+        setUserData(user);
     }
 
     const logout = async () => {
         setUserToken(null);
+        setUserData(null);
         await AsyncStorage.removeItem('userToken');
     }
 
@@ -27,13 +33,21 @@ export const AuthProvider = ({ children }) => {
             setIsLoading(false);
         }
     }
+    const refreshUserData = async () => {
+        try {
+            const data = await GetUserService();
+            setUserData(data);
+        } catch (error) {
+            console.log('Error actualizando perfil:', error);
+        }
+    };
 
     useEffect(() => {
         isLoggedIn();
     }, []);
 
     return (
-        <AuthContext.Provider value={{ userToken, isLoading, login, logout, isLoggedIn }}>
+        <AuthContext.Provider value={{ userToken, isLoading, login, logout, isLoggedIn, userData, refreshUserData }}>
             {children}
         </AuthContext.Provider>
     )
